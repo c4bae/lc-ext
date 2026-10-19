@@ -20,6 +20,17 @@
       "js": ["content/neetcode-main.js"],
       "world": "MAIN",
       "run_at": "document_idle"
+    },
+    {
+      "matches": ["https://leetcode.com/*"],
+      "js": ["lib/languages.js", "lib/bridge.js", "lib/toast.js", "content/leetcode.js"],
+      "run_at": "document_idle"
+    },
+    {
+      "matches": ["https://leetcode.com/*"],
+      "js": ["content/leetcode-main.js"],
+      "world": "MAIN",
+      "run_at": "document_idle"
     }
   ]
 }
