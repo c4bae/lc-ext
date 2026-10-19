@@ -235,7 +235,10 @@
     }
     busy = true;
     const button = document.getElementById(BUTTON_ID);
-    if (button) button.disabled = true;
+    if (button) {
+      button.disabled = true;
+      button.style.cursor = "not-allowed";
+    }
     try {
       await task();
     } catch (err) {
@@ -246,7 +249,10 @@
     } finally {
       busy = false;
       const current = document.getElementById(BUTTON_ID);
-      if (current) current.disabled = false;
+      if (current) {
+        current.disabled = false;
+        current.style.cursor = "pointer";
+      }
     }
   }
 
@@ -257,16 +263,32 @@
     const button = document.createElement("button");
     button.id = BUTTON_ID;
     button.type = "button";
-    // Borrow the Submit button's classes so it matches the toolbar.
+    // Borrow the Submit button's classes so it matches the toolbar, minus the
+    // disabled styling Submit carries while the page is still loading.
     button.className = submit.className;
+    button.classList.remove("cursor-not-allowed", "opacity-50", "pointer-events-none");
+    button.style.cursor = "pointer";
     const label = document.createElement("span");
     label.className = "text-sm font-medium";
     label.textContent = "Submit + Quiz";
     button.append(label);
     button.title = "Submit and get quizzed by Claude if it's Accepted";
     button.addEventListener("click", () => exclusive(runFromLeetCode));
-    // Submit sits inside a tooltip wrapper; go after the wrapper, not inside it.
-    (submit.closest("[data-state]") ?? submit).after(button);
+    // Each toolbar button sits in its own hover-highlighted ".group" cell, with a
+    // 1px divider between cells. Give the button a cell of its own so hovering
+    // it doesn't highlight Submit too.
+    const cell = submit.closest(".group");
+    if (!cell) {
+      (submit.closest("[data-state]") ?? submit).after(button);
+      return;
+    }
+    const ownCell = document.createElement("div");
+    ownCell.className = cell.className;
+    ownCell.append(button);
+    const divider = cell.previousElementSibling?.matches('[class*="w-[1px]"]')
+      ? cell.previousElementSibling.cloneNode(false)
+      : null;
+    cell.after(...(divider ? [divider, ownCell] : [ownCell]));
   }
 
   async function init() {
