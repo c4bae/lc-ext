@@ -1,7 +1,10 @@
 // Job store and tab orchestration. All state lives in chrome.storage.session:
 //   job:<jobId>  -> job object
 //   tab:<tabId>  -> jobId waiting to be picked up by the LeetCode tab
-// Job status: "pending" (LeetCode tab not yet picked it up) -> "submitting".
+// Job status: "pending" (LeetCode tab not yet picked it up) -> "submitting"
+// -> "accepted" (Claude opened).
+
+importScripts("../lib/languages.js", "../lib/prompt.js");
 
 const JOB_TTL_MS = 6 * 60 * 60 * 1000;
 
@@ -63,6 +66,18 @@ const handlers = {
     job.status = "submitting";
     await saveJob(job);
     return { jobId, job };
+  },
+
+  // From leetcode.js when the submission is Accepted: open the Claude quiz.
+  async ACCEPTED({ jobId, description }, sender) {
+    const job = await getItem(jobKey(jobId));
+    if (!job) return { ok: false, error: "Job expired" };
+    job.status = "accepted";
+    job.description = description || "";
+    await saveJob(job);
+    const launch = NQ.claudeLaunch(job);
+    await chrome.tabs.create({ url: launch.url, index: sender.tab.index + 1, openerTabId: sender.tab.id });
+    return { ok: true };
   },
 };
 
