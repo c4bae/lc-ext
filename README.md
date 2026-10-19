@@ -1,4 +1,4 @@
-# neetcode-quiz
+# lc-ext
 
 A Chrome extension (Manifest V3). Click **Submit + Quiz** on a NeetCode problem and it submits your solution to LeetCode. If LeetCode returns **Accepted**, a new Claude chat opens with a prompt that quizzes you on your approach, time and space complexity, and whether your solution is the most optimal known approach.
 
@@ -14,10 +14,15 @@ Requires Chrome 111 or newer (MAIN-world content scripts).
 
 ## Use
 
-- **From NeetCode:** open a problem, write your solution, click **Submit + Quiz** (next to Submit). A LeetCode tab opens, switches to your language, pastes your code and submits it.
+- **From NeetCode:** open a problem, write your solution, click **Submit + Quiz** (after Submit). A LeetCode tab opens, switches to your language, pastes your code and submits it.
+
+  ![Submit + Quiz after Submit in NeetCode's editor toolbar](docs/neetcode-submit-quiz.png)
+
 - **From LeetCode:** click **Submit + Quiz** next to LeetCode's Submit button to submit what is in the editor.
 
-On Accepted, Claude opens next to the LeetCode tab. If the prompt is too long to fit in a URL (about 8,000 characters), it is copied to your clipboard instead, Claude opens empty, and a notification tells you to paste.
+  ![Submit + Quiz next to Submit in LeetCode's top toolbar](docs/leetcode-submit-quiz.png)
+
+On Accepted, Claude opens next to the LeetCode tab after a 3 second pause, so you can see your result first. If the prompt is too long to fit in a URL (about 8,000 characters), it is copied to your clipboard instead, Claude opens empty, and a notification tells you to paste.
 
 If you are logged out of LeetCode, you get a notification and nothing is submitted.
 
