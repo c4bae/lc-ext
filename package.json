@@ -1,0 +1,8 @@
+{
+  "name": "neetcode-quiz",
+  "private": true,
+  "description": "Chrome extension: submit NeetCode solutions to LeetCode, then get quizzed by Claude on Accepted.",
+  "scripts": {
+    "test": "node --test"
+  }
+}
