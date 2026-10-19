@@ -33,6 +33,9 @@
   const LANGUAGE_SWITCH_TIMEOUT_MS = 5000;
   const VERDICT_TIMEOUT_MS = 60000;
   const CHECK_THROTTLE_MS = 100;
+  // Pause on Accepted so the result (runtime, memory) can be seen before Claude
+  // takes focus.
+  const QUIZ_DELAY_MS = 3000;
 
   const isProblemPage = () => /^\/problems\/[^/]+/.test(location.pathname);
   const problemSlug = () => location.pathname.match(/^\/problems\/([^/]+)/)[1];
@@ -188,6 +191,11 @@
       console.info(`[neetcode-quiz] verdict: ${verdict}; no quiz`);
       return;
     }
+    showToast(`Accepted. Opening the Claude quiz in ${QUIZ_DELAY_MS / 1000} s...`, {
+      kind: "success",
+      durationMs: QUIZ_DELAY_MS,
+    });
+    await new Promise((resolve) => setTimeout(resolve, QUIZ_DELAY_MS));
     await deliverQuiz(jobId, description);
   }
 
