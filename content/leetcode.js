@@ -82,7 +82,22 @@
 
   const isLoggedOut = () => !!document.querySelector(SELECTORS.loginWall);
 
-  const problemDescription = () => document.querySelector(SELECTORS.description)?.innerText.trim() || "";
+  // innerText flattens <sup>/<sub> ("10<sup>4</sup>" reads as "104"), so mark them on a clone.
+  // The clone is attached offscreen because innerText only keeps line breaks for rendered nodes.
+  function problemDescription() {
+    const el = document.querySelector(SELECTORS.description);
+    if (!el) return "";
+    const clone = el.cloneNode(true);
+    for (const sup of clone.querySelectorAll("sup")) sup.textContent = `^${sup.textContent}`;
+    for (const sub of clone.querySelectorAll("sub")) sub.textContent = `_${sub.textContent}`;
+    clone.style.cssText = "position:fixed;left:-99999px;top:0;width:800px";
+    document.body.append(clone);
+    try {
+      return clone.innerText.trim();
+    } finally {
+      clone.remove();
+    }
+  }
 
   const problemTitle = () => document.title.replace(/\s*-\s*LeetCode\s*$/, "").trim() || problemSlug();
 
