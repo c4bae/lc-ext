@@ -10,6 +10,7 @@ const ROOT = path.join(__dirname, "..");
 function loadWorker() {
   const store = {};
   const createdTabs = [];
+  const notifications = [];
   let onMessage = null;
   let nextTabId = 100;
 
@@ -36,7 +37,15 @@ function loadWorker() {
       },
       onRemoved: { addListener() {} },
     },
-    runtime: { onMessage: { addListener: (fn) => { onMessage = fn; } } },
+    runtime: {
+      onMessage: { addListener: (fn) => { onMessage = fn; } },
+      getURL: (p) => `chrome-extension://test/${p}`,
+    },
+    notifications: {
+      async create(options) {
+        notifications.push(options);
+      },
+    },
   };
 
   const context = vm.createContext({ chrome, crypto, console, structuredClone });
@@ -50,10 +59,13 @@ function loadWorker() {
   const swPath = path.join(ROOT, "background/service-worker.js");
   vm.runInContext(fs.readFileSync(swPath, "utf8"), context, { filename: swPath });
 
+  // Like Chrome: if the listener doesn't return true, the sender gets undefined.
   function send(message, tab) {
-    return new Promise((resolve) => onMessage(message, { tab }, resolve));
+    return new Promise((resolve) => {
+      if (onMessage(message, { tab }, resolve) !== true) resolve(undefined);
+    });
   }
-  return { store, createdTabs, send };
+  return { store, createdTabs, notifications, send };
 }
 
 const neetcodeTab = { id: 1, index: 0 };
@@ -135,6 +147,25 @@ test("long prompt is returned for the clipboard, then OPEN_CLAUDE opens an empty
   assert.equal(worker.createdTabs.at(-1).url, "https://claude.ai/new");
   assert.equal((await worker.send({ type: "OPEN_CLAUDE", jobId: reply.jobId }, leetcodeTab)).ok, false);
   assert.equal(worker.createdTabs.length, tabsBefore + 1);
+});
+
+test("CREATE_JOB starts a job from a LeetCode tab without opening a tab", async () => {
+  const worker = loadWorker();
+  const leetcodeTab = { id: 7, index: 2 };
+  const created = await worker.send({ type: "CREATE_JOB", job: jobFields }, leetcodeTab);
+  assert.equal(created.ok, true);
+  assert.equal(worker.createdTabs.length, 0);
+  const accepted = await worker.send({ type: "ACCEPTED", jobId: created.jobId, description: "" }, leetcodeTab);
+  assert.equal(accepted.ok, true);
+  assert.match(worker.createdTabs[0].url, /^https:\/\/claude\.ai\/new\?q=/);
+});
+
+test("NOTIFY shows a system notification", async () => {
+  const worker = loadWorker();
+  await worker.send({ type: "NOTIFY", message: "Log in to LeetCode" }, { id: 7, index: 2 });
+  assert.equal(worker.notifications.length, 1);
+  assert.equal(worker.notifications[0].message, "Log in to LeetCode");
+  assert.equal(worker.notifications[0].type, "basic");
 });
 
 test("OPEN_CLAUDE is refused for a job that wasn't accepted", async () => {

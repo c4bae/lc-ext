@@ -55,6 +55,24 @@ const handlers = {
     return { ok: true, jobId: job.jobId };
   },
 
+  // From leetcode.js when the quiz starts on LeetCode itself: the tab already
+  // has the code, so the job goes straight to "submitting".
+  async CREATE_JOB({ job: fields }) {
+    const job = await createJob(fields, "submitting");
+    return { ok: true, jobId: job.jobId };
+  },
+
+  // From content scripts, for messages the user should see even on another tab.
+  async NOTIFY({ message }) {
+    await chrome.notifications.create({
+      type: "basic",
+      iconUrl: chrome.runtime.getURL("icons/icon128.png"),
+      title: "NeetCode Quiz",
+      message,
+    });
+    return { ok: true };
+  },
+
   // From leetcode.js on load: hand over the job opened for this tab, once.
   async GET_JOB(_message, sender) {
     const key = tabKey(sender.tab.id);
