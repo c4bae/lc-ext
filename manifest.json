@@ -1,0 +1,25 @@
+{
+  "manifest_version": 3,
+  "name": "NeetCode Quiz",
+  "version": "0.1.0",
+  "description": "Submit NeetCode solutions to LeetCode. On Accepted, Claude quizzes you on your approach and complexity.",
+  "minimum_chrome_version": "111",
+  "permissions": ["storage", "tabs"],
+  "host_permissions": ["https://neetcode.io/*", "https://leetcode.com/*"],
+  "background": {
+    "service_worker": "background/service-worker.js"
+  },
+  "content_scripts": [
+    {
+      "matches": ["https://neetcode.io/*"],
+      "js": ["lib/languages.js", "lib/slugs.js", "lib/bridge.js", "lib/toast.js", "content/neetcode.js"],
+      "run_at": "document_idle"
+    },
+    {
+      "matches": ["https://neetcode.io/*"],
+      "js": ["content/neetcode-main.js"],
+      "world": "MAIN",
+      "run_at": "document_idle"
+    }
+  ]
+}
