@@ -55,19 +55,41 @@
   // a component's `ngh` attribute once it has hydrated it, so wait for that.
   const isHydrated = (el) => !el.closest("[ngh]");
 
+  // Matches NeetCode's Run/Submit sizing (their rules are scoped to the Angular
+  // component, so they don't reach our button), outlined in Submit's green.
+  // NeetCode forces `.button { border-width: 3px !important }`; 1px border plus
+  // 2px extra padding keeps the same outer size.
+  const STYLE = `
+    #${BUTTON_ID}.button {
+      height: 2rem; padding: 0 17px; margin-left: 15px;
+      font-size: 15px; font-weight: 600;
+      background-color: transparent; color: rgb(0, 185, 102);
+      border: 1px solid rgb(0, 185, 102); border-width: 1px !important;
+    }
+    #${BUTTON_ID}.button:hover:not([disabled]) { background-color: rgba(0, 185, 102, 0.12); color: rgb(0, 185, 102); }
+    #${BUTTON_ID}.button:focus { color: rgb(0, 185, 102); box-shadow: none; }`;
+
+  function ensureStyle() {
+    if (document.getElementById(`${BUTTON_ID}-style`)) return;
+    const style = document.createElement("style");
+    style.id = `${BUTTON_ID}-style`;
+    style.textContent = STYLE;
+    document.head.append(style);
+  }
+
   function ensureButton() {
     if (!neetcodeSlug() || document.getElementById(BUTTON_ID)) return;
     const submit = document.querySelector(SELECTORS.submitButton);
     if (!submit || !isHydrated(submit)) return;
+    ensureStyle();
     const button = document.createElement("button");
     button.id = BUTTON_ID;
     button.type = "button";
-    button.className = "button is-info";
-    button.style.marginRight = "8px";
+    button.className = "button";
     button.textContent = "Submit + Quiz";
     button.title = "Submit this code on LeetCode and get quizzed by Claude if it's Accepted";
     button.addEventListener("click", () => onClick(button));
-    submit.before(button);
+    submit.after(button);
   }
 
   // NeetCode is a single-page app: the editor toolbar is re-rendered on
