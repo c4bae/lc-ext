@@ -1,6 +1,6 @@
 {
   "manifest_version": 3,
-  "name": "NeetCode Quiz",
+  "name": "c4bae's lc ext",
   "version": "0.1.0",
   "description": "Submit NeetCode solutions to LeetCode. On Accepted, Claude quizzes you on your approach and complexity.",
   "minimum_chrome_version": "111",

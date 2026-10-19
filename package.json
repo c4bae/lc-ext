@@ -1,5 +1,5 @@
 {
-  "name": "neetcode-quiz",
+  "name": "lc-ext",
   "private": true,
   "description": "Chrome extension: submit NeetCode solutions to LeetCode, then get quizzed by Claude on Accepted.",
   "scripts": {

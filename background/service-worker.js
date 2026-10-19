@@ -67,7 +67,7 @@ const handlers = {
     await chrome.notifications.create({
       type: "basic",
       iconUrl: chrome.runtime.getURL("icons/icon128.png"),
-      title: "NeetCode Quiz",
+      title: "c4bae's lc ext",
       message,
     });
     return { ok: true };
@@ -131,7 +131,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   const handler = handlers[message?.type];
   if (!handler || !sender.tab) return false;
   serially(() => handler(message, sender)).then(sendResponse, (err) => {
-    console.error(`[neetcode-quiz] ${message.type} failed:`, err);
+    console.error(`[lc-ext] ${message.type} failed:`, err);
     sendResponse({ ok: false, error: err.message });
   });
   return true; // keep the channel open for the async reply

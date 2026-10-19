@@ -188,7 +188,7 @@
   async function submitAndQuiz(jobId, description) {
     const verdict = await submitAndWaitForVerdict();
     if (verdict !== "Accepted") {
-      console.info(`[neetcode-quiz] verdict: ${verdict}; no quiz`);
+      console.info(`[lc-ext] verdict: ${verdict}; no quiz`);
       return;
     }
     showToast(`Accepted. Opening the Claude quiz in ${QUIZ_DELAY_MS / 1000} s...`, {

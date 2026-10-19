@@ -85,7 +85,7 @@
       reply.leetcodeSlug = lookupLeetCodeSlug(data.neetcodeSlug);
     } catch (err) {
       // Slug lookup is best effort: the caller falls back to the NeetCode slug.
-      console.warn("[neetcode-quiz] slug lookup failed:", err);
+      console.warn("[lc-ext] slug lookup failed:", err);
       reply.leetcodeSlug = null;
     }
     window.postMessage(reply, location.origin);
