@@ -49,10 +49,16 @@
     }
   }
 
+  // NeetCode is prerendered and hydrated by Angular, which claims existing DOM
+  // nodes by position. A button inserted before hydration gets claimed as
+  // NeetCode's own Submit (its classes, text and click handler). Angular removes
+  // a component's `ngh` attribute once it has hydrated it, so wait for that.
+  const isHydrated = (el) => !el.closest("[ngh]");
+
   function ensureButton() {
     if (!neetcodeSlug() || document.getElementById(BUTTON_ID)) return;
     const submit = document.querySelector(SELECTORS.submitButton);
-    if (!submit) return;
+    if (!submit || !isHydrated(submit)) return;
     const button = document.createElement("button");
     button.id = BUTTON_ID;
     button.type = "button";
@@ -65,7 +71,8 @@
   }
 
   // NeetCode is a single-page app: the editor toolbar is re-rendered on
-  // navigation, so re-check after DOM changes (batched per animation frame).
+  // navigation, so re-check after DOM changes and after hydration (batched per
+  // animation frame).
   let scheduled = false;
   new MutationObserver(() => {
     if (scheduled) return;
@@ -74,6 +81,6 @@
       scheduled = false;
       ensureButton();
     });
-  }).observe(document.body, { childList: true, subtree: true });
+  }).observe(document.body, { childList: true, subtree: true, attributes: true, attributeFilter: ["ngh"] });
   ensureButton();
 })();
