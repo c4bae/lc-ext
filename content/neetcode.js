@@ -2,7 +2,7 @@
 // NeetCode's Submit button; on click, collects the problem and code and asks the
 // background to open the problem on LeetCode.
 (() => {
-  const { callMain, showToast, leetcodeLabelFor, resolveLeetCodeSlug } = globalThis.NQ;
+  const { callMain, showToast, attachTooltip, leetcodeLabelFor, resolveLeetCodeSlug } = globalThis.NQ;
 
   const SELECTORS = {
     submitButton: "app-code-actions .submit-btn",
@@ -87,7 +87,7 @@
     button.type = "button";
     button.className = "button";
     button.textContent = "Submit + Quiz";
-    button.title = "Submit this code on LeetCode and get quizzed by Claude if it's Accepted";
+    attachTooltip(button, "Submits this code on LeetCode. If it's accepted, Claude quizzes you on your approach and complexity.");
     button.addEventListener("click", () => onClick(button));
     submit.after(button);
   }

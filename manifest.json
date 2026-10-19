@@ -13,7 +13,7 @@
   "content_scripts": [
     {
       "matches": ["https://neetcode.io/*"],
-      "js": ["lib/languages.js", "lib/slugs.js", "lib/bridge.js", "lib/toast.js", "content/neetcode.js"],
+      "js": ["lib/languages.js", "lib/slugs.js", "lib/bridge.js", "lib/toast.js", "lib/tooltip.js", "content/neetcode.js"],
       "run_at": "document_idle"
     },
     {
@@ -24,7 +24,7 @@
     },
     {
       "matches": ["https://leetcode.com/*"],
-      "js": ["lib/languages.js", "lib/bridge.js", "lib/toast.js", "content/leetcode.js"],
+      "js": ["lib/languages.js", "lib/bridge.js", "lib/toast.js", "lib/tooltip.js", "content/leetcode.js"],
       "run_at": "document_idle"
     },
     {
@@ -32,6 +32,12 @@
       "js": ["content/leetcode-main.js"],
       "world": "MAIN",
       "run_at": "document_idle"
+    }
+  ],
+  "web_accessible_resources": [
+    {
+      "resources": ["icons/icon48.png"],
+      "matches": ["https://neetcode.io/*", "https://leetcode.com/*"]
     }
   ]
 }

@@ -6,7 +6,7 @@
 // Either way, click Submit and watch for the verdict. Only "Accepted" is
 // reported to the background, which opens the Claude quiz.
 (() => {
-  const { callMain, showToast, isLeetCodeLabel } = globalThis.NQ;
+  const { callMain, showToast, attachTooltip, isLeetCodeLabel } = globalThis.NQ;
 
   // LeetCode changes its DOM often; every selector the extension depends on is here.
   const SELECTORS = {
@@ -280,7 +280,7 @@
     label.className = "text-sm font-medium";
     label.textContent = "Submit + Quiz";
     button.append(label);
-    button.title = "Submit and get quizzed by Claude if it's Accepted";
+    attachTooltip(button, "Submits the code in the editor. If it's accepted, Claude quizzes you on your approach and complexity.");
     button.addEventListener("click", () => exclusive(runFromLeetCode));
     // Each toolbar button sits in its own hover-highlighted ".group" cell, with a
     // 1px divider between cells. Give the button a cell of its own so hovering
