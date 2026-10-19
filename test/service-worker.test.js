@@ -106,3 +106,39 @@ test("ACCEPTED opens Claude with the prompt prefilled", async () => {
   assert.ok(decodeURIComponent(claudeTab.url).includes("Problem: Two Sum"));
   assert.equal(claudeTab.openerTabId, leetcodeTab.id);
 });
+
+test("concurrent duplicate ACCEPTED messages open Claude once", async () => {
+  const worker = loadWorker();
+  const { reply, leetcodeTab } = await startJob(worker);
+  await worker.send({ type: "GET_JOB" }, leetcodeTab);
+  const tabsBefore = worker.createdTabs.length;
+  const message = { type: "ACCEPTED", jobId: reply.jobId, description: "" };
+  const replies = await Promise.all([worker.send(message, leetcodeTab), worker.send(message, leetcodeTab)]);
+  assert.equal(worker.createdTabs.length - tabsBefore, 1);
+  assert.deepEqual(replies.map((r) => r.ok).sort(), [false, true]);
+  assert.ok(replies.some((r) => r.duplicate));
+});
+
+test("long prompt is returned for the clipboard, then OPEN_CLAUDE opens an empty chat once", async () => {
+  const worker = loadWorker();
+  const reply = await worker.send({ type: "START_JOB", job: { ...jobFields, code: "x = 1\n".repeat(2000) } }, neetcodeTab);
+  const leetcodeTab = { id: worker.createdTabs.at(-1).id, index: 1 };
+  await worker.send({ type: "GET_JOB" }, leetcodeTab);
+  const tabsBefore = worker.createdTabs.length;
+
+  const accepted = await worker.send({ type: "ACCEPTED", jobId: reply.jobId, description: "" }, leetcodeTab);
+  assert.equal(accepted.ok, true);
+  assert.ok(accepted.clipboardPrompt.includes("x = 1"));
+  assert.equal(worker.createdTabs.length, tabsBefore);
+
+  assert.equal((await worker.send({ type: "OPEN_CLAUDE", jobId: reply.jobId }, leetcodeTab)).ok, true);
+  assert.equal(worker.createdTabs.at(-1).url, "https://claude.ai/new");
+  assert.equal((await worker.send({ type: "OPEN_CLAUDE", jobId: reply.jobId }, leetcodeTab)).ok, false);
+  assert.equal(worker.createdTabs.length, tabsBefore + 1);
+});
+
+test("OPEN_CLAUDE is refused for a job that wasn't accepted", async () => {
+  const worker = loadWorker();
+  const { reply, leetcodeTab } = await startJob(worker);
+  assert.equal((await worker.send({ type: "OPEN_CLAUDE", jobId: reply.jobId }, leetcodeTab)).ok, false);
+});
